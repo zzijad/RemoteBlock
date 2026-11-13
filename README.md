@@ -12,7 +12,8 @@ Kombinacija (sekvenca, razmak među tasterima do 3 s) radi i dok je blokada akti
 - Opcija: propusti Vol+/Vol−/Mute tokom blokade
 
 ## Ograničenja
-- **HOME** (i na nekim uređajima Power/namenski tasteri) Android ne dozvoljava da se presretne.
+- **HOME** se ne može blokirati, ali opcija „Zaključaj trenutnu aplikaciju“ vraća aplikaciju koja je bila otvorena u trenutku blokade (na trenutak se vidi početni ekran).
+- Isto važi za (i na nekim uređajima Power/namenski tasteri) Android ne dozvoljava da se presretne.
 - Ako se aplikacija deinstalira/servis ugasi, blokade nema.
 
 ## Build

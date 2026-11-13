@@ -39,6 +39,11 @@
             android:text="Propusti tastere za jačinu zvuka (Vol+/Vol-/Mute) dok je blokada uključena"
             android:textColor="#FFFFFFFF" />
 
+        <CheckBox android:id="@+id/chkLock"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Zaključaj trenutnu aplikaciju: ako se izađe (HOME), vrati se u nju"
+            android:textColor="#FFFFFFFF" />
+
         <TextView android:id="@+id/hint"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginTop="24dp" android:textColor="#FF888888" android:textSize="16sp" />

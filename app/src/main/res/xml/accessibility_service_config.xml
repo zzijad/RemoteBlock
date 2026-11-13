@@ -5,4 +5,4 @@
     android:accessibilityFlags="flagRequestFilterKeyEvents"
     android:canRequestFilterKeyEvents="true"
     android:description="@string/service_desc"
-    android:notificationTimeout="100" />
+    android:notificationTimeout="50" />

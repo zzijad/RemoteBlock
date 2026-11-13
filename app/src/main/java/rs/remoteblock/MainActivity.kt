@@ -44,9 +44,13 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
             isChecked = prefs.allowVolume
             setOnCheckedChangeListener { _, c -> prefs.allowVolume = c }
         }
+        findViewById<CheckBox>(R.id.chkLock).apply {
+            isChecked = prefs.lockApp
+            setOnCheckedChangeListener { _, c -> prefs.lockApp = c }
+        }
         findViewById<TextView>(R.id.hint).text =
             "Kad je blokada uključena, daljinski ne radi — otkucaj kombinaciju da je isključiš.\n" +
-            "Taster HOME Android obično ne dozvoljava da se presretne."
+            "HOME se ne može blokirati, ali ga zaključavanje aplikacije poništava (vraća aplikaciju)."
     }
 
     override fun onResume() {

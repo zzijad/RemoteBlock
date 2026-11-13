@@ -1,6 +1,7 @@
 package rs.remoteblock
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
@@ -17,6 +18,10 @@ class BlockService : AccessibilityService() {
     private val recent = ArrayList<Int>()
     private var lastKeyAt = 0L
 
+    // Poslednja "prava" aplikacija u prvom planu i ona zakljucana tokom blokade
+    private var currentPkg: String? = null
+    private var lockedPkg: String? = null
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         prefs = Prefs(this)
@@ -30,6 +35,7 @@ class BlockService : AccessibilityService() {
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 && trackCombo(event.keyCode)) {
             val nowBlocked = !prefs.blocked
             prefs.blocked = nowBlocked
+            lockedPkg = if (nowBlocked && prefs.lockApp) currentPkg else null
             Toast.makeText(
                 this,
                 if (nowBlocked) "Daljinski BLOKIRAN" else "Daljinski ODBLOKIRAN",
@@ -59,7 +65,30 @@ class BlockService : AccessibilityService() {
         return false
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (!::prefs.isInitialized) prefs = Prefs(this)
+        val pkg = event.packageName?.toString() ?: return
+        if (pkg in IGNORED_PKGS || pkg == packageName) return
+
+        if (prefs.blocked && prefs.lockApp) {
+            if (lockedPkg == null) lockedPkg = currentPkg ?: pkg
+            val locked = lockedPkg
+            if (locked != null && pkg != locked) {
+                // Izaslo se iz zakljucane aplikacije (npr. HOME) - vrati je
+                val intent = packageManager.getLeanbackLaunchIntentForPackage(locked)
+                    ?: packageManager.getLaunchIntentForPackage(locked)
+                if (intent != null) {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    try { startActivity(intent) } catch (_: Exception) {}
+                }
+                return
+            }
+        } else {
+            lockedPkg = null
+        }
+        currentPkg = pkg
+    }
     override fun onInterrupt() {}
 
     override fun onUnbind(intent: android.content.Intent?): Boolean {
@@ -70,6 +99,7 @@ class BlockService : AccessibilityService() {
     companion object {
         @Volatile var instance: BlockService? = null
         private const val COMBO_GAP_MS = 3000L
+        private val IGNORED_PKGS = setOf("com.android.systemui", "android")
         private val VOLUME_KEYS = setOf(
             KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_VOLUME_MUTE
         )
