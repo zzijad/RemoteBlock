@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Remote Block</string>
+    <string name="service_desc">Blokira tastere daljinskog upravljača dok je blokada uključena. Kombinacija tastera uključuje i isključuje blokadu.</string>
+</resources>

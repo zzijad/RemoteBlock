@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#FF121212" android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="48dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Remote Block" android:textColor="#FFFFFFFF" android:textSize="32sp" />
+
+        <TextView android:id="@+id/serviceStatus"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:textSize="20sp" />
+
+        <TextView android:id="@+id/blockStatus"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textSize="20sp" />
+
+        <TextView android:id="@+id/comboText"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textColor="#FFBBBBBB" android:textSize="18sp" />
+
+        <Button android:id="@+id/btnAccess"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:text="Uključi servis (Pristupačnost)" />
+
+        <Button android:id="@+id/btnToggle"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Uključi / isključi blokadu" />
+
+        <Button android:id="@+id/btnRecord"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Snimi novu kombinaciju" />
+
+        <CheckBox android:id="@+id/chkVolume"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Propusti tastere za jačinu zvuka (Vol+/Vol-/Mute) dok je blokada uključena"
+            android:textColor="#FFFFFFFF" />
+
+        <TextView android:id="@+id/hint"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:textColor="#FF888888" android:textSize="16sp" />
+    </LinearLayout>
+</ScrollView>
