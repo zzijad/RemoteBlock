@@ -2,6 +2,8 @@ package rs.remoteblock
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
@@ -19,8 +21,12 @@ class BlockService : AccessibilityService() {
     private var lastKeyAt = 0L
 
     // Poslednja "prava" aplikacija u prvom planu i ona zakljucana tokom blokade
-    private var currentPkg: String? = null
-    private var lockedPkg: String? = null
+    private var currentPkg: String? = null   // poslednja prava aplikacija (za zakljucavanje)
+    private var foregroundPkg: String? = null // sta je trenutno u prvom planu
+    private val handler = Handler(Looper.getMainLooper())
+    private var lockedPkg: String?
+        get() = prefs.lockedPkg
+        set(v) { prefs.lockedPkg = v }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -30,6 +36,8 @@ class BlockService : AccessibilityService() {
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         if (!::prefs.isInitialized) prefs = Prefs(this)
+
+        if (Prefs.recording) return false
 
         // Detekcija kombinacije samo na pritisak (ne na ponavljanje drzanja)
         if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0 && trackCombo(event.keyCode)) {
@@ -69,25 +77,33 @@ class BlockService : AccessibilityService() {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         if (!::prefs.isInitialized) prefs = Prefs(this)
         val pkg = event.packageName?.toString() ?: return
-        if (pkg in IGNORED_PKGS || pkg == packageName) return
+        if (pkg in IGNORED_PKGS) return
+        // Nas ekran nije "prava" aplikacija: ne pamti se, ali je izlazak u njega izlazak iz zakljucane
+        val own = pkg == packageName
+        foregroundPkg = pkg
 
         if (prefs.blocked && prefs.lockApp) {
-            if (lockedPkg == null) lockedPkg = currentPkg ?: pkg
+            if (lockedPkg == null) lockedPkg = currentPkg ?: if (own) null else pkg
             val locked = lockedPkg
             if (locked != null && pkg != locked) {
-                // Izaslo se iz zakljucane aplikacije (npr. HOME) - vrati je
-                val intent = packageManager.getLeanbackLaunchIntentForPackage(locked)
-                    ?: packageManager.getLaunchIntentForPackage(locked)
-                if (intent != null) {
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    try { startActivity(intent) } catch (_: Exception) {}
+                // Izaslo se iz zakljucane aplikacije (npr. HOME) - vrati je, uz ponovne pokusaje
+                handler.removeCallbacksAndMessages(null)
+                for (delay in longArrayOf(0, 300, 800, 1600, 3000)) {
+                    handler.postDelayed({ if (prefs.blocked && foregroundPkg != locked) relaunch(locked) }, delay)
                 }
                 return
             }
         } else {
             lockedPkg = null
         }
-        currentPkg = pkg
+        if (!own) currentPkg = pkg
+    }
+
+    private fun relaunch(pkg: String) {
+        val intent = packageManager.getLeanbackLaunchIntentForPackage(pkg)
+            ?: packageManager.getLaunchIntentForPackage(pkg) ?: return
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        try { startActivity(intent) } catch (_: Exception) {}
     }
     override fun onInterrupt() {}
 

@@ -20,6 +20,10 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_LOCK, true)
         set(v) = sp.edit().putBoolean(KEY_LOCK, v).apply()
 
+    var lockedPkg: String?
+        get() = sp.getString(KEY_LOCKED_PKG, null)
+        set(v) = sp.edit().putString(KEY_LOCKED_PKG, v).apply()
+
     var combo: List<Int>
         get() = sp.getString(KEY_COMBO, null)
             ?.split(",")?.mapNotNull { it.toIntOrNull() }?.takeIf { it.size >= 3 }
@@ -30,6 +34,8 @@ class Prefs(context: Context) {
         const val KEY_BLOCKED = "blocked"
         const val KEY_VOLUME = "allow_volume"
         const val KEY_LOCK = "lock_app"
+        const val KEY_LOCKED_PKG = "locked_pkg"
+        @Volatile var recording = false
         const val KEY_COMBO = "combo"
 
         // Gore, Gore, Dole, Dole, OK

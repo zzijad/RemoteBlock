@@ -98,6 +98,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
     // --- Snimanje nove kombinacije ---
     private fun startRecording() {
         recording = true
+        Prefs.recording = true
         recorded.clear()
         btnRecord.text = "Pritiskaj tastere... (čeka se 3 s pauze)"
         comboText.text = "Snimanje: pritisni 3–8 tastera"
@@ -107,6 +108,7 @@ class MainActivity : Activity(), SharedPreferences.OnSharedPreferenceChangeListe
         handler.removeCallbacks(finishRecording)
         if (!recording) return
         recording = false
+        Prefs.recording = false
         btnRecord.text = "Snimi novu kombinaciju"
         if (save) {
             if (recorded.size >= 3) {
